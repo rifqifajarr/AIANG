@@ -28,7 +28,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.aiang.R
 import com.aiang.ui.navigation.Screen
+import com.aiang.ui.screen.addtask.AddTaskScreen
 import com.aiang.ui.screen.calendar.CalendarFirstScreen
+import com.aiang.ui.screen.calendar.CalendarScreen
 import com.aiang.ui.screen.profile.ProfileScreen
 import com.aiang.ui.screen.routineform.RoutineFormScreen
 import com.aiang.ui.theme.AIANGTheme
@@ -41,10 +43,11 @@ fun HomeScaffold(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    var isFormFilled by remember{ mutableStateOf(false) }
 
     Scaffold (
         bottomBar = {
-            if (currentRoute != Screen.RoutineForm.route) {
+            if (currentRoute != Screen.RoutineForm.route || currentRoute != Screen.AddTask.route) {
                 BottomBar(navController = navController)
             }
         },
@@ -58,11 +61,19 @@ fun HomeScaffold(
             composable(Screen.Profile.route) {
                 ProfileScreen()
             }
-            composable(Screen.CalendarFirst.route) {
-                CalendarFirstScreen(navController = navController)
+            composable(Screen.Calendar.route) {
+                if (isFormFilled == false) {
+                    CalendarFirstScreen(navController = navController)
+                } else {
+                    CalendarScreen(navController = navController)
+                }
             }
             composable(Screen.RoutineForm.route) {
-                RoutineFormScreen()
+                RoutineFormScreen(navController = navController)
+                isFormFilled = true
+            }
+            composable(Screen.AddTask.route) {
+                AddTaskScreen()
             }
         }
     }
@@ -89,7 +100,7 @@ private fun BottomBar(
             selected = selectedTab == 1,
             onClick = {
                 selectedTab = 1
-                navController.navigate(Screen.CalendarFirst.route)
+                navController.navigate(Screen.Calendar.route)
             },
             icon = { Image(painter = painterResource(id = R.drawable.calendar), contentDescription = null, modifier = Modifier.size(24.dp)) },
             label = { Text("Calendar", fontSize = 10.sp, color = Color.White) }
