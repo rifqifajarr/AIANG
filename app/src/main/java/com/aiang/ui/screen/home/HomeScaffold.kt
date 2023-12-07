@@ -1,5 +1,6 @@
 package com.aiang.ui.screen.home
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -47,7 +48,8 @@ fun HomeScaffold(
 
     Scaffold (
         bottomBar = {
-            if (currentRoute != Screen.RoutineForm.route || currentRoute != Screen.AddTask.route) {
+            if (currentRoute != Screen.RoutineForm.route && currentRoute != Screen.AddTask.route) {
+                Log.i("bottomBar", "false")
                 BottomBar(navController = navController)
             }
         },

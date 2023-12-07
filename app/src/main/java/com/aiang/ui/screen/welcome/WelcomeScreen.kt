@@ -34,7 +34,7 @@ import com.aiang.ui.theme.AIANGTheme
 @Composable
 fun WelcomeScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     Column(
         modifier = Modifier
