@@ -89,7 +89,7 @@ fun LoginScreen(
                             snackbarHostState.showSnackbar("Login Success")
                         }
                         val data = uiState.data.loginResult
-                        val user = UserModel(userId = data?.userId!!, email = data.email!!, name = data.name!!)
+                        val user = UserModel(userId = data?.userId!!, email = data.email!!, name = data.name!!, token = data.token!!)
                         viewModel.saveSession(user)
                         navController.navigate(Screen.Home.route)
                     }

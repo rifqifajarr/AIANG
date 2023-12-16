@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -24,6 +26,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +59,7 @@ fun CalendarScreen(
 ) {
     var currentDate by remember { mutableStateOf(Calendar.getInstance()) }
     var selectedDate by remember { mutableStateOf<Date?>(null) }
+    selectedDate = currentDate.time
     val dates = getDatesForMonth(currentDate)
 
     Column(
@@ -75,6 +80,7 @@ fun CalendarScreen(
             )
             IconButton(
                 onClick = {
+                currentDate = currentDate.clone() as Calendar
                 currentDate.add(Calendar.MONTH, -1)
                 Log.i("Prev Button", "Clicked $currentDate")
             }) {
@@ -82,6 +88,7 @@ fun CalendarScreen(
             }
             IconButton(
                 onClick = {
+                    currentDate = currentDate.clone() as Calendar
                     currentDate.add(Calendar.MONTH, 1)
                     Log.i("Next Button", "Clicked $currentDate")
             }) {
@@ -113,14 +120,26 @@ fun CalendarScreen(
                 }
             }
 
+            val lazyListState = rememberLazyListState()
+
+            LaunchedEffect(lazyListState) {
+                val index = dates.indexOfFirst { it == selectedDate }
+                if (index != -1) {
+                    lazyListState.scrollToItem(index)
+                }
+            }
+
             LazyRow(
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
+                state = lazyListState
             ) {
                 items(dates) { date ->
                     DayItem(
                         date = date,
                         isSelected = date == selectedDate,
-                        onDateSelected = { selectedDate = date },
+                        onDateSelected = {
+                            selectedDate = date
+                         },
                         modifier = Modifier
                             .padding(2.dp)
                             .border(
@@ -156,7 +175,7 @@ fun getDatesForMonth(calendar: Calendar): List<Date> {
 }
 
 fun getMonthYearText(calendar: Calendar): String {
-    val month = SimpleDateFormat("MMM", Locale.getDefault()).format(calendar.time)
+    val month = SimpleDateFormat("MMM", Locale.getDefault()).format(calendar.get(Calendar.MONTH))
     val year = calendar.get(Calendar.YEAR)
     return "$month $year"
 }

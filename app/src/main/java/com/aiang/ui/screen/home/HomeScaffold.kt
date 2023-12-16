@@ -44,7 +44,7 @@ fun HomeScaffold(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    var isFormFilled by remember{ mutableStateOf(false) }
+    var isFormFilled by remember{ mutableStateOf(true) }
 
     Scaffold (
         bottomBar = {
@@ -75,7 +75,7 @@ fun HomeScaffold(
                 isFormFilled = true
             }
             composable(Screen.AddTask.route) {
-                AddTaskScreen()
+                AddTaskScreen(navController = navController)
             }
         }
     }

@@ -107,6 +107,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(8.dp))
         Button(onClick = {
             viewModel.logout()
+            viewModel.clearPreference()
         }) {
             Text(
                 text = "Logout",
