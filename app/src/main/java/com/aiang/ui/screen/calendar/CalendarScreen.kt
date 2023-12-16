@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,7 +25,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,19 +45,19 @@ import androidx.navigation.compose.rememberNavController
 import com.aiang.ui.component.DayItem
 import com.aiang.ui.navigation.Screen
 import com.aiang.ui.theme.AIANGTheme
-import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
-import java.util.Locale
 
 @Composable
 fun CalendarScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController
 ) {
-    var currentDate by remember { mutableStateOf(Calendar.getInstance()) }
-    var selectedDate by remember { mutableStateOf<Date?>(null) }
-    selectedDate = currentDate.time
+    var currentDate by remember { mutableStateOf(LocalDate.now()) }
+    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
+    var isDateMoved by remember { mutableStateOf(false) }
+    if (!isDateMoved) selectedDate = currentDate
     val dates = getDatesForMonth(currentDate)
 
     Column(
@@ -80,17 +78,15 @@ fun CalendarScreen(
             )
             IconButton(
                 onClick = {
-                currentDate = currentDate.clone() as Calendar
-                currentDate.add(Calendar.MONTH, -1)
-                Log.i("Prev Button", "Clicked $currentDate")
+                    currentDate = currentDate.minusMonths(1)
+                    isDateMoved = true
             }) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
             }
             IconButton(
                 onClick = {
-                    currentDate = currentDate.clone() as Calendar
-                    currentDate.add(Calendar.MONTH, 1)
-                    Log.i("Next Button", "Clicked $currentDate")
+                    currentDate = currentDate.plusMonths(1)
+                    isDateMoved = true
             }) {
                 Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null)
             }
@@ -163,21 +159,20 @@ fun CalendarScreen(
     }
 }
 
-fun getDatesForMonth(calendar: Calendar): List<Date> {
-    val dates = mutableListOf<Date>()
-    calendar.set(Calendar.DAY_OF_MONTH, 1)
-    val maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-    repeat(maxDay) {
-        dates.add(calendar.time)
-        calendar.add(Calendar.DAY_OF_MONTH, 1)
+fun getDatesForMonth(calendar: LocalDate): List<LocalDate> {
+    val dates = mutableListOf<LocalDate>()
+    var date = calendar.withDayOfMonth(1)
+
+    while (date.month == calendar.month) {
+        dates.add(date)
+        date = date.plusDays(1)
     }
     return dates
 }
 
-fun getMonthYearText(calendar: Calendar): String {
-    val month = SimpleDateFormat("MMM", Locale.getDefault()).format(calendar.get(Calendar.MONTH))
-    val year = calendar.get(Calendar.YEAR)
-    return "$month $year"
+fun getMonthYearText(calendar: LocalDate): String {
+    val formatter = DateTimeFormatter.ofPattern("MMM yyyy")
+    return calendar.format(formatter)
 }
 
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)

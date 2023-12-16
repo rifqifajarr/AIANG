@@ -12,14 +12,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
 @Composable
 fun DayItem(
-    date: Date,
+    date: LocalDate,
     isSelected: Boolean = false,
-    onDateSelected: (Date) -> Unit,
+    onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -34,11 +36,11 @@ fun DayItem(
                 .padding(4.dp)
         ) {
             Text(
-                text = SimpleDateFormat("d", Locale.getDefault()).format(date),
+                text = DateTimeFormatter.ofPattern("d").format(date),
                 fontSize = 20.sp
             )
             Text(
-                text = SimpleDateFormat("E", Locale.getDefault()).format(date),
+                text = DateTimeFormatter.ofPattern("E").format(date),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
