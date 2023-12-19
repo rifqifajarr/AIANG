@@ -1,19 +1,15 @@
-package com.aiang.ui.screen.addtask
+package com.aiang.ui.screen.routineform
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.aiang.data.api.ApiConfig
-import com.aiang.data.api.response.CreateTaskResponse
+import com.aiang.data.api.response.CreateActivitiesRequest
+import com.aiang.data.api.response.CreateActivitiesResponse
 import com.aiang.data.api.response.GetTokenResponse
-import com.aiang.data.api.response.TaskRequest
 import com.aiang.data.preferences.UserModel
 import com.aiang.data.repository.Repository
 import com.aiang.ui.common.UiState
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -21,11 +17,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class AddTaskViewModel(private val repository: Repository) : ViewModel() {
-    private val _uiState: MutableStateFlow<UiState<CreateTaskResponse>> = MutableStateFlow(UiState.Waiting)
-    val uiState: StateFlow<UiState<CreateTaskResponse>> get() = _uiState
+class RoutineFormViewModel(private val repository: Repository): ViewModel() {
+    private val _uiState: MutableStateFlow<UiState<CreateActivitiesResponse>> = MutableStateFlow(UiState.Waiting)
+    val uiState: StateFlow<UiState<CreateActivitiesResponse>> get() = _uiState
 
     private lateinit var user: UserModel
+    private var activityCreated = 0
 
     fun getSession() {
         viewModelScope.launch {
@@ -39,7 +36,7 @@ class AddTaskViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
-    fun getTokenThenAddTask(name: String, desc: String, category: String, priority: String, date: String) {
+    fun getToken() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             val client = ApiConfig.getApiService().getToken(user.userId)
@@ -50,9 +47,9 @@ class AddTaskViewModel(private val repository: Repository) : ViewModel() {
                 ) {
                     val responseBody = response.body()
                     if (response.isSuccessful && responseBody != null) {
+                        _uiState.value = UiState.Waiting
                         user.token = "Bearer " + responseBody.token!!
                         Log.i("getToken", user.token)
-                        createTask(name, desc, category, priority, date)
                     } else {
                         _uiState.value = UiState.Error(response.message())
                         Log.e("getToken", "onFailure: ${response.message()}")
@@ -67,32 +64,41 @@ class AddTaskViewModel(private val repository: Repository) : ViewModel() {
         }
     }
 
-    fun createTask(name: String, desc: String, category: String, priority: String, date: String) {
-        Log.i("createTask", name + desc + category + priority + date)
+    fun createActivity(request: CreateActivitiesRequest) {
+        _uiState.value = UiState.Loading
         viewModelScope.launch {
-            _uiState.value = UiState.Loading
-            val taskRequest = TaskRequest(name, desc, category, priority, date)
-            val client = ApiConfig.getTaskApiService().createTask(user.token, taskRequest)
-            client.enqueue(object  : Callback<CreateTaskResponse> {
+            val client = ApiConfig.getRoutineApiService().createDailyRoutine(user.token, request)
+            client.enqueue(object : Callback<CreateActivitiesResponse> {
                 override fun onResponse(
-                    call: Call<CreateTaskResponse>,
-                    response: Response<CreateTaskResponse>
+                    call: Call<CreateActivitiesResponse>,
+                    response: Response<CreateActivitiesResponse>
                 ) {
-                    _uiState.value = UiState.Waiting
                     val responseBody = response.body()
                     if (response.isSuccessful && responseBody != null) {
-                        _uiState.value = UiState.Success(responseBody)
+                        Log.i("createActivity", responseBody.data?.day!!)
+                        activityCreated++
+                        if (activityCreated == 7) {
+                            _uiState.value = UiState.Success(responseBody)
+                        }
                     } else {
                         _uiState.value = UiState.Error(response.message())
-                        Log.e("AddTaskViewModel", "onFailure: ${response.message()}")
+                        Log.e("createActivity", "onFailure: ${response.message()}")
                     }
                 }
 
-                override fun onFailure(call: Call<CreateTaskResponse>, t: Throwable) {
+                override fun onFailure(call: Call<CreateActivitiesResponse>, t: Throwable) {
                     _uiState.value = UiState.Error(t.message.toString())
-                    Log.e("AddTaskViewModel", "onFailure: ${t.message}")
+                    Log.e("getToken", "onFailure: ${t.message}")
                 }
             })
+        }
+    }
+
+    fun markFormFilled() {
+        viewModelScope.launch {
+            if (!user.isFormFilled) {
+                repository.markFormFilled()
+            }
         }
     }
 }

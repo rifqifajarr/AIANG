@@ -23,3 +23,23 @@ data class CreateTaskData (
     @field:SerializedName("name")
     val name: String? = null,
 )
+
+data class Task (
+    val id: String,
+    val name: String,
+    val desc: String,
+    val category: String,
+    val priority: String,
+    val date: String,
+    val user_id: String,
+    val createdAt: String,
+    val updatedAt: String
+)
+
+data class TaskRequest(
+    val name: String,
+    val desc: String,
+    val category: String,
+    val priority: String,
+    val date: String
+)

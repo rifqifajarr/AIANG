@@ -5,5 +5,6 @@ data class UserModel(
     var userId: String,
     var email: String,
     var token: String = "",
-    val isLogin: Boolean = false
+    val isLogin: Boolean = false,
+    val isFormFilled: Boolean = false
 )

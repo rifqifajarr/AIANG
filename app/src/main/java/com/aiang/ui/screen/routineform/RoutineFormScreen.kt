@@ -1,6 +1,8 @@
 package com.aiang.ui.screen.routineform
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,22 +10,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
@@ -32,21 +42,103 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.aiang.data.api.response.CreateActivitiesRequest
 import com.aiang.ui.component.DailyRoutineForm
 import com.aiang.ui.navigation.Screen
 import com.aiang.ui.screen.calendar.CalendarFirstScreen
 import com.aiang.ui.theme.AIANGTheme
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.aiang.data.di.Injection
+import com.aiang.ui.common.UiState
+import com.aiang.ui.common.ViewModelFactory
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoutineFormScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: RoutineFormViewModel = viewModel(
+        factory = ViewModelFactory(Injection.provideRepository(LocalContext.current))
+    )
 ) {
-    var day by remember{ mutableStateOf(0) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel) {
+        viewModel.getSession()
+        viewModel.getToken()
+    }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }
+    ) { contentPadding ->
+        Box(contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)) {
+            viewModel.uiState.collectAsState().value.let { uiState ->
+                when (uiState) {
+                    is UiState.Waiting -> {
+                        RoutineFormContent(viewModel = viewModel)
+                    }
+                    is UiState.Loading -> {
+                        LoadingIndicator()
+                    }
+                    is UiState.Success -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Routine Created!")
+                        }
+                        viewModel.markFormFilled()
+                        navController.navigate(Screen.Calendar.route)
+                    }
+                    is UiState.Error -> {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Create Routine Failed: ${uiState.errorMessage}")
+                        }
+                        RoutineFormContent(viewModel = viewModel)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LoadingIndicator() {
+    CircularProgressIndicator(
+        modifier = Modifier.width(64.dp)
+    )
+}
+
+@Composable
+fun RoutineFormContent(
+    modifier: Modifier = Modifier,
+    viewModel: RoutineFormViewModel
+) {
+
+    val days = listOf(
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    )
+
+    val colors = listOf(
+        Color.Cyan, Color.Magenta, Color.Blue, MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary, Color.Yellow, Color.Red
+    )
+
+    val textColors = listOf(
+        Color.Black, Color.White, Color.White, Color.White, Color.White, Color.Black, Color.White,
+    )
+
+    val activitiesRequests = remember {
+        days.map { day ->
+            CreateActivitiesRequest(day = day)
+        }
+    }
 
     Surface(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             verticalArrangement = Arrangement.Top,
@@ -69,59 +161,65 @@ fun RoutineFormScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            when(day) {
-                0 -> DailyRoutineForm(color = Color.Cyan, textColor = Color.Black, day = "Monday",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp)))
-                1 -> DailyRoutineForm(color = Color.Magenta, textColor = Color.White, day = "Tuesday",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp)))
-                2 -> DailyRoutineForm(color = Color.Blue, textColor = Color.White, day = "Wednesday",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp)))
-                3 -> DailyRoutineForm(color = MaterialTheme.colorScheme.secondary, textColor = Color.White, day = "Thursday",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp)))
-                4 -> DailyRoutineForm(color = MaterialTheme.colorScheme.primary, textColor = Color.White, day = "Friday",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp)))
-                5 -> DailyRoutineForm(color = Color.Yellow, textColor = Color.Black, day = "Saturday",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp)))
-                6 ->DailyRoutineForm(color = Color.Red, textColor = Color.White, day = "Sunday",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(14.dp)))
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Button(onClick = { if(day > 0) day-- }) {
-                    Text(text = "Prev")
-                }
-                Button(onClick = { if(day < 6) day++ }) {
-                    Text(text = "Next")
-                }
-            }
-
-            if (day == 6) {
-                Button(onClick = { navController.navigate(Screen.Calendar.route) }) {
-                    Text(
-                        text = "Finish",
-                        fontSize = 16.sp
+            Column {
+                for (index in 0..6) {
+                    DailyRoutineForm(
+                        color = colors[index],
+                        textColor = textColors[index],
+                        day = days[index],
+                        onWorkStartUpdated = { activity, start ->
+                            Log.i("RoutineFormScreen", "${days[index]} $activity $start")
+                            activitiesRequests[index].workcoll_start = start
+                        },
+                        onWorkEndUpdated = { activity, end ->
+                            Log.i("RoutineFormScreen", "${days[index]} $activity $end")
+                            activitiesRequests[index].workcoll_end = end
+                        },
+                        onBreakStartUpdated = { activity, start ->
+                            Log.i("RoutineFormScreen", "${days[index]} $activity $start")
+                            activitiesRequests[index].break_start = start
+                        },
+                        onBreakEndUpdated = { activity, end ->
+                            Log.i("RoutineFormScreen", "${days[index]} $activity $end")
+                            activitiesRequests[index].break_end = end
+                        },
+                        onStudyStartUpdated = { activity, start ->
+                            Log.i("RoutineFormScreen", "${days[index]} $activity $start")
+                            activitiesRequests[index].studyhome_start = start
+                        },
+                        onStudyEndUpdated = { activity, end ->
+                            Log.i("RoutineFormScreen", "${days[index]} $activity $end")
+                            activitiesRequests[index].studyhome_end = end
+                        },
+                        onSleepStartUpdated = { activity, start ->
+                            Log.i("RoutineFormScreen", "${days[index]} $activity $start")
+                            activitiesRequests[index].sleep_start = start
+                        },
+                        onSleepEndUpdated = { activity, end ->
+                            Log.i("RoutineFormScreen", "${days[index]} $activity $end")
+                            activitiesRequests[index].sleep_end = end
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
+            }
+
+//            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    for (i in 0..6) {
+                        viewModel.createActivity(activitiesRequests[i])
+                    }
+                }
+            ) {
+                Text(
+                    text = "Finish",
+                    fontSize = 16.sp
+                )
             }
         }
     }

@@ -1,10 +1,15 @@
 package com.aiang.data.api
 
+import com.aiang.data.api.response.CreateActivitiesRequest
+import com.aiang.data.api.response.CreateActivitiesResponse
 import com.aiang.data.api.response.CreateTaskResponse
 import com.aiang.data.api.response.GetTokenResponse
 import com.aiang.data.api.response.LoginResponse
 import com.aiang.data.api.response.RegisterResponse
+import com.aiang.data.api.response.Task
+import com.aiang.data.api.response.TaskRequest
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -37,14 +42,23 @@ interface ApiService {
 }
 
 interface TaskApiService {
-    @FormUrlEncoded
     @POST("tasks/")
     fun createTask(
         @Header("Authorization") token: String,
-        @Field("name") name: String,
-        @Field("desc") desc: String,
-        @Field("category") category: String,
-        @Field("priority") priority: String,
-        @Field("date") date: String,
+        @Body taskRequest: TaskRequest
     ): Call<CreateTaskResponse>
+
+    @GET("tasks/date/{date}")
+    fun getTasksByDate(
+        @Header("Authorization") token: String,
+        @Path("date") date: String
+    ): Call<List<Task>>
+}
+
+interface RoutineApiService {
+    @POST("/activities/")
+    fun createDailyRoutine(
+        @Header("Authorization") token: String,
+        @Body routineRequest: CreateActivitiesRequest
+    ): Call<CreateActivitiesResponse>
 }

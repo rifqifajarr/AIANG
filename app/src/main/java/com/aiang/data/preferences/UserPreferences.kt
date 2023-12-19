@@ -24,6 +24,7 @@ class UserPreferences private constructor(private val dataStore: DataStore<Prefe
         private val EMAIL_KEY = stringPreferencesKey("email")
         private val TOKEN_KEY = stringPreferencesKey("token")
         private val IS_LOGIN_KEY = booleanPreferencesKey("isLogin")
+        private val IS_FORM_FILLED_KEY = booleanPreferencesKey("isFormFilled")
 
         fun getInstance(dataStore: DataStore<Preferences>): UserPreferences {
             return INSTANCE ?: synchronized(this) {
@@ -41,6 +42,7 @@ class UserPreferences private constructor(private val dataStore: DataStore<Prefe
             preferences[EMAIL_KEY] = user.email
             preferences[TOKEN_KEY] = user.token
             preferences[IS_LOGIN_KEY] = true
+            preferences[IS_FORM_FILLED_KEY] = false
         }
     }
 
@@ -51,8 +53,15 @@ class UserPreferences private constructor(private val dataStore: DataStore<Prefe
                 preferences[USERID_KEY] ?: "",
                 preferences[EMAIL_KEY] ?: "",
                 preferences[TOKEN_KEY] ?: "",
-                preferences[IS_LOGIN_KEY] ?: false
+                preferences[IS_LOGIN_KEY] ?: false,
+                preferences[IS_FORM_FILLED_KEY] ?: false
             )
+        }
+    }
+
+    suspend fun markFormFilled() {
+        dataStore.edit { preferences ->
+            preferences[IS_FORM_FILLED_KEY] = true
         }
     }
 

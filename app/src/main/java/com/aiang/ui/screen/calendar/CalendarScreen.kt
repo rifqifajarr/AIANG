@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +46,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.aiang.ui.component.DayItem
 import com.aiang.ui.navigation.Screen
+import com.aiang.ui.screen.calendar.task.TaskContent
 import com.aiang.ui.theme.AIANGTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -55,9 +58,9 @@ fun CalendarScreen(
     navController: NavHostController
 ) {
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
-    var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
-    var isDateMoved by remember { mutableStateOf(false) }
-    if (!isDateMoved) selectedDate = currentDate
+    var selectedDate by remember { mutableStateOf<LocalDate>(currentDate) }
+//    var isDateMoved by remember { mutableStateOf(false) }
+//    if (!isDateMoved) selectedDate = currentDate
     val dates = getDatesForMonth(currentDate)
 
     Column(
@@ -79,18 +82,26 @@ fun CalendarScreen(
             IconButton(
                 onClick = {
                     currentDate = currentDate.minusMonths(1)
-                    isDateMoved = true
+//                    isDateMoved = true
             }) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
             }
             IconButton(
                 onClick = {
                     currentDate = currentDate.plusMonths(1)
-                    isDateMoved = true
+//                    isDateMoved = true
             }) {
                 Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null)
             }
         }
+
+        TaskContent(
+            currentDate = selectedDate,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .height(350.dp)
+        )
 
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -99,6 +110,21 @@ fun CalendarScreen(
                 horizontalArrangement = Arrangement.End,
                 modifier = Modifier.fillMaxWidth()
             ) {
+                Box(
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        shape = RoundedCornerShape(6.dp)
+                    )
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f))
+                ) {
+                    TextButton(onClick = { navController.navigate(Screen.AddTask.route) }) {
+                        Text(text = "Get Recommendation", color = Color.White)
+                    }
+                }
                 Box(
                     modifier = Modifier
                         .padding(end = 8.dp)

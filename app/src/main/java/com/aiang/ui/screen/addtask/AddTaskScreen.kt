@@ -1,6 +1,7 @@
 package com.aiang.ui.screen.addtask
 
 import android.app.DatePickerDialog
+import android.util.Log
 import android.widget.DatePicker
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -116,10 +117,11 @@ fun AddTaskContent(
 ) {
     var taskName by remember { mutableStateOf("") }
     var taskDesc by remember { mutableStateOf("") }
-    var taskPriority by remember { mutableStateOf("") }
-    var taskCategory by remember { mutableStateOf("") }
+    var taskPriority by remember { mutableStateOf("High") }
+    var taskCategory by remember { mutableStateOf("Study/Homework") }
     var selectPriority by remember { mutableStateOf(0) }
     var selectCategory by remember { mutableStateOf(0) }
+    var taskDateText by remember { mutableStateOf("") }
     var taskDate by remember { mutableStateOf("") }
 
     val calendar = Calendar.getInstance()
@@ -127,8 +129,9 @@ fun AddTaskContent(
     val month = calendar.get(Calendar.MONTH)
     val day = calendar.get(Calendar.DAY_OF_MONTH)
     calendar.time = Date()
-    if (taskDate == "") {
-        taskDate = getDate(calendar)
+    if (taskDateText == "") {
+        taskDateText = getDate(calendar)
+        taskDate = formatDate(calendar)
     }
 
     val datePickerDialog = DatePickerDialog(
@@ -139,8 +142,8 @@ fun AddTaskContent(
                 set(Calendar.MONTH, month)
                 set(Calendar.DAY_OF_MONTH, dayOfMonth)
             }
-            taskDate = SimpleDateFormat("EEEE, d MMM yyyy", Locale.getDefault()).format(tempDate.time)
-//            taskDate = "$dayOfMonth/${month+1}/$year"
+            taskDateText = SimpleDateFormat("EEEE, d MMM yyyy", Locale.getDefault()).format(tempDate.time)
+            taskDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(tempDate.time)
         }, year, month, day
     )
 
@@ -287,7 +290,7 @@ fun AddTaskContent(
             fontSize = 20.sp,
         )
         TextButton(onClick = { datePickerDialog.show() }) {
-            Text(text = taskDate, fontSize = 18.sp)
+            Text(text = taskDateText, fontSize = 18.sp)
         }
 
         Spacer(modifier = Modifier.height(48.dp))
@@ -296,8 +299,9 @@ fun AddTaskContent(
             modifier = Modifier.fillMaxWidth()
         ) {
             Button(
-                enabled = taskName.isNotEmpty() && taskDesc.isNotEmpty() && taskDate.isNotEmpty(),
+                enabled = taskName.isNotEmpty() && taskDesc.isNotEmpty(),
                 onClick = {
+                    Log.i("AddTask", taskName + taskDesc + taskDate + taskCategory + taskPriority)
                     viewModel.getSession()
                     viewModel.getTokenThenAddTask(
                         taskName,
@@ -320,6 +324,11 @@ fun getDate(calendar: Calendar): String {
     val month = SimpleDateFormat("MMM", Locale.getDefault()).format(calendar.time)
     val year = calendar.get(Calendar.YEAR)
     return "$day, $date $month $year"
+}
+
+fun formatDate(calendar: Calendar): String {
+    val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+    return date
 }
 
 //@Preview(device = Devices.PIXEL_4, showSystemUi = true)

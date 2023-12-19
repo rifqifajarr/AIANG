@@ -22,6 +22,10 @@ class Repository private constructor(
         userPreferences.saveSession(userModel)
     }
 
+    suspend fun markFormFilled() {
+        userPreferences.markFormFilled()
+    }
+
     fun getSession(): Flow<UserModel> {
         return userPreferences.getSession()
     }

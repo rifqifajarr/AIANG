@@ -63,6 +63,7 @@ fun TaskItem(
                     text = name,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
 
                 IconButton(
@@ -75,6 +76,7 @@ fun TaskItem(
                     Icon(
                         imageVector = if (isChecked) Icons.Default.CheckCircle else Icons.Outlined.CheckCircle,
                         contentDescription = null,
+                        tint = Color.Black
                     )
                 }
             }
@@ -83,11 +85,13 @@ fun TaskItem(
                 text = "$priority | $category",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
+                color = Color.Black
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = desc,
                 fontSize = 18.sp,
+                color = Color.Black
             )
         }
     }

@@ -21,9 +21,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +45,15 @@ fun DailyRoutineForm(
     modifier: Modifier = Modifier,
     color: Color,
     textColor: Color,
-    day: String
+    day: String,
+    onWorkStartUpdated: (activity: String, start: String) -> Unit,
+    onWorkEndUpdated: (activity: String, end: String) -> Unit,
+    onBreakStartUpdated: (activity: String, start: String) -> Unit,
+    onBreakEndUpdated: (activity: String, end: String) -> Unit,
+    onStudyStartUpdated: (activity: String, start: String) -> Unit,
+    onStudyEndUpdated: (activity: String, end: String) -> Unit,
+    onSleepStartUpdated: (activity: String, start: String) -> Unit,
+    onSleepEndUpdated: (activity: String, end: String) -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -62,13 +72,41 @@ fun DailyRoutineForm(
                 fontWeight = FontWeight.Bold,
             )
             Spacer(modifier = Modifier.height(14.dp))
-            FormContent(activity = "Work or College", textColor = textColor)
+            FormContent(activity = "Work or College", textColor = textColor,
+                onTimeStartUpdated = { start ->
+                    onWorkStartUpdated("Work or College", start)
+                },
+                onTimeEndUpdated = { end ->
+                    onWorkEndUpdated("Work or College", end)
+                }
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            FormContent(activity = "Break", textColor = textColor)
+            FormContent(activity = "Break", textColor = textColor,
+                onTimeStartUpdated = { start ->
+                    onBreakStartUpdated("Break", start)
+                },
+                onTimeEndUpdated = { end ->
+                    onBreakEndUpdated("Break", end)
+                }
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            FormContent(activity = "Study, Homework, or Organization", textColor = textColor)
+            FormContent(activity = "Study, Homework, or Organization", textColor = textColor,
+                onTimeStartUpdated = { start ->
+                    onStudyStartUpdated("Study, Homework, or Organization", start)
+                },
+                onTimeEndUpdated = { end ->
+                    onStudyEndUpdated("Study, Homework, or Organization", end)
+                }
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            FormContent(activity = "Sleep", textColor = textColor)
+            FormContent(activity = "Sleep", textColor = textColor,
+                onTimeStartUpdated = { start ->
+                    onSleepStartUpdated("Sleep", start)
+                },
+                onTimeEndUpdated = { end ->
+                    onSleepEndUpdated("Sleep", end)
+                }
+            )
         }
     }
 }
@@ -77,7 +115,9 @@ fun DailyRoutineForm(
 fun FormContent(
     activity: String,
     textColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onTimeStartUpdated: (start: String) -> Unit,
+    onTimeEndUpdated: (end: String) -> Unit,
 ) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -87,6 +127,11 @@ fun FormContent(
 
     val hour = calendar[Calendar.HOUR_OF_DAY]
     val minute = calendar[Calendar.MINUTE]
+
+    LaunchedEffect(selectedTimeStart, selectedTimeEnd) {
+        onTimeStartUpdated(selectedTimeStart)
+        onTimeEndUpdated(selectedTimeEnd)
+    }
 
     val timePickerStart = TimePickerDialog(
         context,
@@ -127,7 +172,9 @@ fun FormContent(
             Text(text = "Start", color = textColor)
             if (isNone == false) {
                 TextButton(
-                    onClick = { timePickerStart.show() }
+                    onClick = {
+                        timePickerStart.show()
+                    }
                 ) {
                     Text(text = selectedTimeStart, color = textColor)
                 }
@@ -135,7 +182,9 @@ fun FormContent(
             Text(text = "End", color = textColor)
             if (isNone == false) {
                 TextButton(
-                    onClick = { timePickerEnd.show() }
+                    onClick = {
+                        timePickerEnd.show()
+                    }
                 ) {
                     Text(text = selectedTimeEnd, color = textColor)
                 }
@@ -151,10 +200,10 @@ fun FormContent(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun DailyRoutineFormPreview() {
-    AIANGTheme {
-        DailyRoutineForm(color = Color.Blue, textColor = Color.White, day = "Monday")
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DailyRoutineFormPreview() {
+//    AIANGTheme {
+//        DailyRoutineForm(color = Color.Blue, textColor = Color.White, day = "Monday")
+//    }
+//}
