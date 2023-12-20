@@ -46,6 +46,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.aiang.ui.component.DayItem
 import com.aiang.ui.navigation.Screen
+import com.aiang.ui.screen.calendar.routine.RoutineContent
 import com.aiang.ui.screen.calendar.task.TaskContent
 import com.aiang.ui.theme.AIANGTheme
 import java.time.LocalDate
@@ -59,8 +60,6 @@ fun CalendarScreen(
 ) {
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedDate by remember { mutableStateOf<LocalDate>(currentDate) }
-//    var isDateMoved by remember { mutableStateOf(false) }
-//    if (!isDateMoved) selectedDate = currentDate
     val dates = getDatesForMonth(currentDate)
 
     Column(
@@ -82,25 +81,30 @@ fun CalendarScreen(
             IconButton(
                 onClick = {
                     currentDate = currentDate.minusMonths(1)
-//                    isDateMoved = true
             }) {
                 Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
             }
             IconButton(
                 onClick = {
                     currentDate = currentDate.plusMonths(1)
-//                    isDateMoved = true
             }) {
                 Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null)
             }
         }
 
+        RoutineContent(
+            selectedDate = selectedDate,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+        )
+
         TaskContent(
             currentDate = selectedDate,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
-                .height(350.dp)
+                .height(200.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp)
         )
 
         Column(

@@ -3,6 +3,7 @@ package com.aiang.data.api
 import com.aiang.data.api.response.CreateActivitiesRequest
 import com.aiang.data.api.response.CreateActivitiesResponse
 import com.aiang.data.api.response.CreateTaskResponse
+import com.aiang.data.api.response.GetActivitiesResponse
 import com.aiang.data.api.response.GetTokenResponse
 import com.aiang.data.api.response.LoginResponse
 import com.aiang.data.api.response.RegisterResponse
@@ -61,4 +62,9 @@ interface RoutineApiService {
         @Header("Authorization") token: String,
         @Body routineRequest: CreateActivitiesRequest
     ): Call<CreateActivitiesResponse>
+
+    @GET("/activities")
+    fun getDailyRoutine(
+        @Header("Authorization") token: String,
+    ): Call<List<GetActivitiesResponse>>
 }

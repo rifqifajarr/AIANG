@@ -35,3 +35,19 @@ data class CreateActivitiesData (
     @field:SerializedName("day")
     val day: String? = null,
 )
+
+data class GetActivitiesResponse(
+    val id: String,
+    val day: String,
+    val workcoll_start: String,
+    val workcoll_end: String,
+    val break_start: String,
+    val break_end: String,
+    val studyhome_start: String,
+    val studyhome_end: String,
+    val sleep_start: String,
+    val sleep_end: String,
+    val user_id: String,
+    val createdAt: String,
+    val updatedAt: String
+)

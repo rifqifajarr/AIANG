@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.aiang.MainViewModel
 import com.aiang.data.repository.Repository
 import com.aiang.ui.screen.addtask.AddTaskViewModel
+import com.aiang.ui.screen.calendar.routine.RoutineViewModel
 import com.aiang.ui.screen.calendar.task.TaskViewModel
 import com.aiang.ui.screen.home.HomeViewModel
 import com.aiang.ui.screen.login.LoginViewModel
@@ -28,6 +29,8 @@ class ViewModelFactory(private val repository: Repository): ViewModelProvider.Ne
             return RoutineFormViewModel(repository) as T
         } else if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             return HomeViewModel(repository) as T
+        } else if (modelClass.isAssignableFrom(RoutineViewModel::class.java)) {
+            return RoutineViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
     }
