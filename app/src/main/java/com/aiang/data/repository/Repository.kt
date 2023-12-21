@@ -26,6 +26,18 @@ class Repository private constructor(
         userPreferences.markFormFilled()
     }
 
+    suspend fun resetFormFilled() {
+        userPreferences.resetFormFilled()
+    }
+
+    suspend fun addFinishedTaskId(taskId: String) {
+        userPreferences.addFinishedTask(taskId)
+    }
+
+    suspend fun deleteFinishedTaskId(taskId: String) {
+        userPreferences.deleteFinishedTask(taskId)
+    }
+
     fun getSession(): Flow<UserModel> {
         return userPreferences.getSession()
     }

@@ -51,3 +51,8 @@ data class GetActivitiesResponse(
     val createdAt: String,
     val updatedAt: String
 )
+
+data class DeleteDailyRoutineResponse(
+    val error: Boolean,
+    val message: String
+)

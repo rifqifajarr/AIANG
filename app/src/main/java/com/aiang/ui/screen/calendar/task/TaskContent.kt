@@ -38,9 +38,11 @@ fun TaskContent(
         factory = ViewModelFactory(Injection.provideRepository(LocalContext.current))
     )
 ) {
+    var finishedTasksId: List<String> = emptyList()
     LaunchedEffect(currentDate) {
         viewModel.getSession()
         viewModel.getTokenThenGetTask(currentDate)
+        finishedTasksId = viewModel.getFinishedTasksId()
     }
 
     Box(
@@ -52,13 +54,21 @@ fun TaskContent(
                 is UiState.Success -> {
                     LazyColumn {
                         items(uiState.data) { task ->
+                            var isFinished = false
+                            if (finishedTasksId.contains(task.id)) isFinished = true
+                            var categoryName: String = if (task.category == "Study") "Study/Homework" else task.category
                             TaskItem(
                                 name = task.name,
                                 priority = task.priority,
-                                category = task.category,
+                                category = categoryName,
                                 desc = task.desc,
                                 modifier = Modifier
-                                    .clip(RoundedCornerShape(14.dp))
+                                    .clip(RoundedCornerShape(14.dp)),
+                                taskFinished = { isFinishedTask ->
+                                    isFinished = !isFinishedTask
+                                    viewModel.handleTaskFinished(task.id, isFinished)
+                                },
+                                isTaskFinished = isFinished!!
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                         }

@@ -118,7 +118,7 @@ fun AddTaskContent(
     var taskName by remember { mutableStateOf("") }
     var taskDesc by remember { mutableStateOf("") }
     var taskPriority by remember { mutableStateOf("High") }
-    var taskCategory by remember { mutableStateOf("Study/Homework") }
+    var taskCategory by remember { mutableStateOf("Study") }
     var selectPriority by remember { mutableStateOf(0) }
     var selectCategory by remember { mutableStateOf(0) }
     var taskDateText by remember { mutableStateOf("") }
@@ -248,7 +248,7 @@ fun AddTaskContent(
                 selected = selectCategory == 0,
                 onClick = {
                     selectCategory = 0
-                    taskCategory = "Study/Homework"
+                    taskCategory = "Study"
                 },
                 label = { Text(text = "Study/Homework") },
                 leadingIcon = if (selectCategory == 0) {

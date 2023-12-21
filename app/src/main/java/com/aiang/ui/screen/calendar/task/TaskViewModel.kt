@@ -30,7 +30,8 @@ class TaskViewModel(private val repository: Repository) : ViewModel() {
                 user = UserModel(
                     userId = userData.userId,
                     email = userData.email,
-                    token = userData.token
+                    token = userData.token,
+                    finishedTaskId = userData.finishedTaskId
                 )
             }
         }
@@ -85,5 +86,28 @@ class TaskViewModel(private val repository: Repository) : ViewModel() {
                 Log.e("TaskViewModel", "getTask onFailure: ${t.message}")
             }
         })
+    }
+
+    fun addFinishedTaskId(taskId: String) {
+        viewModelScope.launch {
+            repository.addFinishedTaskId(taskId)
+        }
+    }
+
+    fun deleteFinishedTaskId(taskId: String) {
+        viewModelScope.launch {
+            repository.deleteFinishedTaskId(taskId)
+        }
+    }
+
+    fun handleTaskFinished(taskId: String, isFinished: Boolean) {
+        viewModelScope.launch {
+            if (isFinished) repository.deleteFinishedTaskId(taskId)
+            else repository.addFinishedTaskId(taskId)
+        }
+    }
+
+    fun getFinishedTasksId(): List<String> {
+        return user.finishedTaskId
     }
 }

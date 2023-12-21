@@ -38,6 +38,8 @@ fun TaskItem(
     priority: String,
     category: String,
     desc: String,
+    taskFinished: (isFinished: Boolean) -> Unit,
+    isTaskFinished: Boolean
 ) {
     Box(
         modifier = modifier
@@ -52,7 +54,6 @@ fun TaskItem(
             modifier = Modifier
                 .padding(16.dp)
         ) {
-            var isChecked by remember { mutableStateOf(false) }
 
             Row(
                 modifier = Modifier
@@ -68,13 +69,13 @@ fun TaskItem(
 
                 IconButton(
                     onClick = {
-                        isChecked = !isChecked
+                        taskFinished(!isTaskFinished)
                     },
                     modifier = Modifier
                         .size(24.dp)
                 ) {
                     Icon(
-                        imageVector = if (isChecked) Icons.Default.CheckCircle else Icons.Outlined.CheckCircle,
+                        imageVector = if (isTaskFinished) Icons.Default.CheckCircle else Icons.Outlined.CheckCircle,
                         contentDescription = null,
                         tint = Color.Black
                     )
@@ -97,10 +98,10 @@ fun TaskItem(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TaskItemPreview() {
-    AIANGTheme {
-        TaskItem(name = "Tugas Dicoding Course", priority = "Task", category = "High", desc = "Jetpack Compose Module Navigation pada compose bla bla bla bla bla bla")
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun TaskItemPreview() {
+//    AIANGTheme {
+//        TaskItem(name = "Tugas Dicoding Course", priority = "Task", category = "High", desc = "Jetpack Compose Module Navigation pada compose bla bla bla bla bla bla")
+//    }
+//}

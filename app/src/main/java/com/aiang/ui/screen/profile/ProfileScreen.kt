@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,11 +48,22 @@ import com.aiang.ui.theme.AIANGTheme
 fun ProfileScreen(
     modifier: Modifier = Modifier
 ) {
-    var checked by remember{ mutableStateOf(false) }
     val viewModel: ProfileViewModel = viewModel(
         factory = ViewModelFactory(Injection.provideRepository(LocalContext.current))
     )
-    var userModel = UserModel(userId = "", email = "")
+    val userModel = UserModel(userId = "", email = "")
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    when {
+        showDialog -> {
+            ResetDataAlertDialog(onDismissRequest = { showDialog = false }, onConfirmation = {
+                viewModel.getTokenThenResetData()
+                viewModel.resetFormFilled()
+                showDialog = false
+            })
+        }
+    }
 
     viewModel.getSession()
 
@@ -98,7 +111,9 @@ fun ProfileScreen(
             fontSize = 16.sp,
         )
         Spacer(modifier = Modifier.height(48.dp))
-        Button(onClick = {}) {
+        Button(onClick = {
+            showDialog = true
+        }) {
             Text(
                 text = "Reset Data",
                 fontSize = 16.sp
@@ -115,6 +130,29 @@ fun ProfileScreen(
             )
         }
     }
+}
+
+@Composable
+fun ResetDataAlertDialog(
+    modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit
+) {
+    AlertDialog(
+        title = { Text(text = "Reset Data") },
+        text = { Text(text = "This will delete all Routine Data, are you sure?") },
+        onDismissRequest = { onDismissRequest() },
+        confirmButton = {
+            TextButton(onClick = { onConfirmation() }) {
+                Text(text = "Yes")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissRequest() }) {
+                Text(text = "Cancel")
+            }
+        }
+    )
 }
 
 @Preview(device = Devices.PIXEL_4, showSystemUi = true)

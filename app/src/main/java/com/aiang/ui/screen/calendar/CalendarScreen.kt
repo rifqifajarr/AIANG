@@ -56,7 +56,8 @@ import java.util.Date
 @Composable
 fun CalendarScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    navigateToRecommendation: (String) -> Unit
 ) {
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedDate by remember { mutableStateOf<LocalDate>(currentDate) }
@@ -92,11 +93,17 @@ fun CalendarScreen(
             }
         }
 
+        var taskId = ""
+
         RoutineContent(
             selectedDate = selectedDate,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp),
+            getTaskId = { id ->
+                taskId = id
+                Log.i("Task Id", taskId)
+            }
         )
 
         TaskContent(
@@ -125,7 +132,9 @@ fun CalendarScreen(
                     .clip(RoundedCornerShape(6.dp))
                     .background(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f))
                 ) {
-                    TextButton(onClick = { navController.navigate(Screen.AddTask.route) }) {
+                    TextButton(onClick = {
+                        navigateToRecommendation(taskId)
+                    }) {
                         Text(text = "Get Recommendation", color = Color.White)
                     }
                 }
@@ -205,10 +214,10 @@ fun getMonthYearText(calendar: LocalDate): String {
     return calendar.format(formatter)
 }
 
-@Preview(device = Devices.PIXEL_4, showSystemUi = true)
-@Composable
-fun CalendarScreenPreview() {
-    AIANGTheme {
-        CalendarScreen(navController = rememberNavController())
-    }
-}
+//@Preview(device = Devices.PIXEL_4, showSystemUi = true)
+//@Composable
+//fun CalendarScreenPreview() {
+//    AIANGTheme {
+//        CalendarScreen(navController = rememberNavController())
+//    }
+//}

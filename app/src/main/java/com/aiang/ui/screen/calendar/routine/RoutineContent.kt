@@ -41,7 +41,8 @@ fun RoutineContent(
     selectedDate: LocalDate,
     viewModel: RoutineViewModel = viewModel(
         factory = ViewModelFactory(Injection.provideRepository(LocalContext.current))
-    )
+    ),
+    getTaskId: (id: String) -> Unit
 ) {
     LaunchedEffect(selectedDate) {
         viewModel.getSession()
@@ -60,6 +61,7 @@ fun RoutineContent(
                 is UiState.Success -> {
                     val routines = uiState.data
                     val dailyRoutine = routines.first { it.day == day }
+                    getTaskId(dailyRoutine.id)
                     RoutineItem(
                         day = day,
                         workStart = dailyRoutine.workcoll_start.substring(0, 5),

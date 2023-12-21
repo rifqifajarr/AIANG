@@ -178,6 +178,8 @@ fun FormContent(
                 ) {
                     Text(text = selectedTimeStart, color = textColor)
                 }
+            } else {
+                selectedTimeEnd = ""
             }
             Text(text = "End", color = textColor)
             if (isNone == false) {
@@ -188,6 +190,8 @@ fun FormContent(
                 ) {
                     Text(text = selectedTimeEnd, color = textColor)
                 }
+            } else {
+                selectedTimeEnd = ""
             }
             IconButton(onClick = { isNone = !isNone }) {
                 if (isNone) {

@@ -31,10 +31,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.aiang.R
 import com.aiang.data.di.Injection
 import com.aiang.ui.common.UiState
@@ -44,6 +46,7 @@ import com.aiang.ui.screen.addtask.AddTaskScreen
 import com.aiang.ui.screen.calendar.CalendarFirstScreen
 import com.aiang.ui.screen.calendar.CalendarScreen
 import com.aiang.ui.screen.profile.ProfileScreen
+import com.aiang.ui.screen.recommendation.RecommendationScreen
 import com.aiang.ui.screen.routineform.RoutineFormScreen
 import com.aiang.ui.theme.AIANGTheme
 
@@ -93,7 +96,7 @@ private fun HomeContent(
 
     Scaffold (
         bottomBar = {
-            if (currentRoute != Screen.RoutineForm.route && currentRoute != Screen.AddTask.route) {
+            if (currentRoute != Screen.RoutineForm.route && currentRoute != Screen.AddTask.route && currentRoute != Screen.Recommendation.route) {
                 Log.i("bottomBar", "false")
                 BottomBar(navController = navController)
             }
@@ -112,7 +115,12 @@ private fun HomeContent(
                 if (isFormFilled == false) {
                     CalendarFirstScreen(navController = navController)
                 } else {
-                    CalendarScreen(navController = navController)
+                    CalendarScreen(
+                        navController = navController,
+                        navigateToRecommendation = { id ->
+                            navController.navigate(Screen.Recommendation.createRoute(id))
+                        }
+                    )
                 }
             }
             composable(Screen.RoutineForm.route) {
@@ -120,6 +128,10 @@ private fun HomeContent(
             }
             composable(Screen.AddTask.route) {
                 AddTaskScreen(navController = navController)
+            }
+            composable(route = Screen.Recommendation.route, arguments = listOf(navArgument("taskId") { type = NavType.StringType })) {
+                val id = it.arguments?.getString("taskId") ?: ""
+                RecommendationScreen(taskId = id)
             }
         }
     }

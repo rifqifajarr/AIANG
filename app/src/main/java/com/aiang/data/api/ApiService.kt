@@ -1,8 +1,10 @@
 package com.aiang.data.api
 
+import com.aiang.data.api.response.ActivityRecommendationResponse
 import com.aiang.data.api.response.CreateActivitiesRequest
 import com.aiang.data.api.response.CreateActivitiesResponse
 import com.aiang.data.api.response.CreateTaskResponse
+import com.aiang.data.api.response.DeleteDailyRoutineResponse
 import com.aiang.data.api.response.GetActivitiesResponse
 import com.aiang.data.api.response.GetTokenResponse
 import com.aiang.data.api.response.LoginResponse
@@ -54,6 +56,11 @@ interface TaskApiService {
         @Header("Authorization") token: String,
         @Path("date") date: String
     ): Call<List<Task>>
+
+    @GET("/prediction/tasks")
+    fun getTaskRecommendation(
+        @Header("Authorization") token: String,
+    ): Call<String>
 }
 
 interface RoutineApiService {
@@ -67,4 +74,15 @@ interface RoutineApiService {
     fun getDailyRoutine(
         @Header("Authorization") token: String,
     ): Call<List<GetActivitiesResponse>>
+
+    @DELETE("/activities")
+    fun deleteDailyRoutine(
+        @Header("Authorization") token: String,
+    ): Call<DeleteDailyRoutineResponse>
+
+    @GET("/prediction/activities/{activityId}")
+    fun getActivityRecommendation(
+        @Header("Authorization") token: String,
+        @Path("activityId") taskId: String
+    ): Call<ActivityRecommendationResponse>
 }

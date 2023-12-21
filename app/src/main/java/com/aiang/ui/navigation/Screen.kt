@@ -9,4 +9,7 @@ sealed class Screen(val route: String) {
     object Calendar : Screen("calendar")
     object RoutineForm : Screen("routine_form")
     object AddTask : Screen("add_task")
+    object Recommendation : Screen("recommendation/{taskId}") {
+        fun createRoute(taskId: String) = "recommendation/$taskId"
+    }
 }

@@ -7,7 +7,9 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.aiang.data.api.response.Task
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -25,6 +27,7 @@ class UserPreferences private constructor(private val dataStore: DataStore<Prefe
         private val TOKEN_KEY = stringPreferencesKey("token")
         private val IS_LOGIN_KEY = booleanPreferencesKey("isLogin")
         private val IS_FORM_FILLED_KEY = booleanPreferencesKey("isFormFilled")
+        private val FINISHED_TASK_ID_KEY = stringSetPreferencesKey("finishedTaskId")
 
         fun getInstance(dataStore: DataStore<Preferences>): UserPreferences {
             return INSTANCE ?: synchronized(this) {
@@ -54,9 +57,35 @@ class UserPreferences private constructor(private val dataStore: DataStore<Prefe
                 preferences[EMAIL_KEY] ?: "",
                 preferences[TOKEN_KEY] ?: "",
                 preferences[IS_LOGIN_KEY] ?: false,
-                preferences[IS_FORM_FILLED_KEY] ?: false
+                preferences[IS_FORM_FILLED_KEY] ?: false,
+                getFinishedTasks(preferences)
             )
         }
+    }
+
+    suspend fun addFinishedTask(taskId: String) {
+        dataStore.edit { preferences ->
+            val currentFinishedTasks = preferences[FINISHED_TASK_ID_KEY] ?: emptySet()
+            val updatedFinishedTasks = currentFinishedTasks.toMutableSet().apply {
+                add(taskId)
+            }
+            preferences[FINISHED_TASK_ID_KEY] = updatedFinishedTasks
+        }
+    }
+
+    suspend fun deleteFinishedTask(taskId: String) {
+        dataStore.edit { preferences ->
+            val currentFinishedTasks = preferences[FINISHED_TASK_ID_KEY] ?: emptySet()
+            val updatedFinishedTasks = currentFinishedTasks.toMutableSet().apply {
+                remove(taskId)
+            }
+            preferences[FINISHED_TASK_ID_KEY] = updatedFinishedTasks
+        }
+    }
+
+    private fun getFinishedTasks(preferences: Preferences): List<String> {
+        val finishedTaskId = preferences[FINISHED_TASK_ID_KEY] ?: emptySet()
+        return finishedTaskId.map { it }
     }
 
     suspend fun markFormFilled() {
@@ -65,8 +94,10 @@ class UserPreferences private constructor(private val dataStore: DataStore<Prefe
         }
     }
 
-    suspend fun getToken(): String {
-        return dataStore.data.first()[TOKEN_KEY] ?: ""
+    suspend fun resetFormFilled() {
+        dataStore.edit { preferences ->
+            preferences[IS_FORM_FILLED_KEY] = false
+        }
     }
 
     suspend fun logout() {

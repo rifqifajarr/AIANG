@@ -10,6 +10,7 @@ import com.aiang.ui.screen.calendar.task.TaskViewModel
 import com.aiang.ui.screen.home.HomeViewModel
 import com.aiang.ui.screen.login.LoginViewModel
 import com.aiang.ui.screen.profile.ProfileViewModel
+import com.aiang.ui.screen.recommendation.RecommendationViewModel
 import com.aiang.ui.screen.routineform.RoutineFormViewModel
 
 class ViewModelFactory(private val repository: Repository): ViewModelProvider.NewInstanceFactory() {
@@ -31,6 +32,8 @@ class ViewModelFactory(private val repository: Repository): ViewModelProvider.Ne
             return HomeViewModel(repository) as T
         } else if (modelClass.isAssignableFrom(RoutineViewModel::class.java)) {
             return RoutineViewModel(repository) as T
+        } else if (modelClass.isAssignableFrom(RecommendationViewModel::class.java)) {
+            return RecommendationViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
     }
