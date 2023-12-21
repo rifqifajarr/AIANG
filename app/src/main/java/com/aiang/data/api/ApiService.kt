@@ -8,6 +8,7 @@ import com.aiang.data.api.response.DeleteDailyRoutineResponse
 import com.aiang.data.api.response.GetActivitiesResponse
 import com.aiang.data.api.response.GetTokenResponse
 import com.aiang.data.api.response.LoginResponse
+import com.aiang.data.api.response.RecommendationTaskResponse
 import com.aiang.data.api.response.RegisterResponse
 import com.aiang.data.api.response.Task
 import com.aiang.data.api.response.TaskRequest
@@ -60,7 +61,7 @@ interface TaskApiService {
     @GET("/prediction/tasks")
     fun getTaskRecommendation(
         @Header("Authorization") token: String,
-    ): Call<String>
+    ): Call<List<RecommendationTaskResponse>>
 }
 
 interface RoutineApiService {

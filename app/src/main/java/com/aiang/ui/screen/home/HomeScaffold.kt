@@ -42,6 +42,7 @@ import com.aiang.data.di.Injection
 import com.aiang.ui.common.UiState
 import com.aiang.ui.common.ViewModelFactory
 import com.aiang.ui.navigation.Screen
+import com.aiang.ui.screen.Timer.TimerScreen
 import com.aiang.ui.screen.addtask.AddTaskScreen
 import com.aiang.ui.screen.calendar.CalendarFirstScreen
 import com.aiang.ui.screen.calendar.CalendarScreen
@@ -133,6 +134,9 @@ private fun HomeContent(
                 val id = it.arguments?.getString("taskId") ?: ""
                 RecommendationScreen(taskId = id)
             }
+            composable(Screen.Timer.route) {
+                TimerScreen()
+            }
         }
     }
 }
@@ -150,7 +154,10 @@ private fun BottomBar(
     ) {
         BottomNavigationItem(
             selected = selectedTab == 0,
-            onClick = { selectedTab = 0 },
+            onClick = {
+                selectedTab = 0
+                navController.navigate(Screen.Timer.route)
+            },
             icon = { Image(painter = painterResource(id = R.drawable.focus_outlined), contentDescription = null, modifier = Modifier.size(24.dp)) },
             label = { Text("Focus Zone", fontSize = 10.sp, color = Color.White) }
         )

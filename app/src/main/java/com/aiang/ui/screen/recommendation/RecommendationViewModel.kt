@@ -7,6 +7,7 @@ import com.aiang.data.api.ApiConfig
 import com.aiang.data.api.response.ActivityRecommendationResponse
 import com.aiang.data.api.response.GetTokenResponse
 import com.aiang.data.api.response.Recommendation
+import com.aiang.data.api.response.RecommendationTaskResponse
 import com.aiang.data.preferences.UserModel
 import com.aiang.data.repository.Repository
 import com.aiang.ui.common.UiState
@@ -77,8 +78,6 @@ class RecommendationViewModel(private val repository: Repository): ViewModel() {
                 if (response.isSuccessful && responseBody != null) {
                     recommendation.recommendation = responseBody.recommendation.toString()
                     recommendation.stressLevel = responseBody.stressLevel!!
-
-                    _uiState.value = UiState.Success(recommendation)
                 } else {
                     _uiState.value = UiState.Error(response.message())
                     Log.e("Get Routine Recommendation", "onSuccess: ${response.message()}")
@@ -93,20 +92,22 @@ class RecommendationViewModel(private val repository: Repository): ViewModel() {
 
     private fun getTaskRecommendation() {
         val client = ApiConfig.getTaskApiService().getTaskRecommendation(user.token)
-        client.enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
+        client.enqueue(object : Callback<List<RecommendationTaskResponse>> {
+            override fun onResponse(call: Call<List<RecommendationTaskResponse>>, response: Response<List<RecommendationTaskResponse>>) {
                 val responseBody = response.body()
                 if (response.isSuccessful && responseBody != null) {
-                    recommendation.recommendedTask += responseBody
+                    recommendation.recommendedTask = responseBody
                     Log.i("RecommendationList", recommendation.recommendedTask.toString())
-                    Log.i("ResponseBody", responseBody)
+//                    Log.i("ResponseBody", responseBody.predictionTask)
+
+                    _uiState.value = UiState.Success(recommendation)
                 } else {
                     _uiState.value = UiState.Error(response.message())
                     Log.e("Get Task Recommendation", "onSuccess: ${response.message()}")
                 }
             }
 
-            override fun onFailure(call: Call<String>, t: Throwable) {
+            override fun onFailure(call: Call<List<RecommendationTaskResponse>>, t: Throwable) {
                 Log.e("Get Task Recommendation", "onFailure: ${t.message}")
             }
         })

@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aiang.data.api.response.RecommendationTaskResponse
 import com.aiang.data.di.Injection
 import com.aiang.ui.common.UiState
 import com.aiang.ui.common.ViewModelFactory
@@ -54,7 +55,7 @@ fun RecommendationScreen(
     ),
     taskId: String
 ) {
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(taskId) {
         viewModel.getSession()
         viewModel.getTokenThenGetData(taskId)
         Log.i("RecommendationScreen", "taskId $taskId")
@@ -100,7 +101,7 @@ fun LoadingIndicator() {
 fun RecommendationContent(
     stressLevel: Int,
     recommendation: String,
-    taskRecommendation: List<String>
+    taskRecommendation: List<RecommendationTaskResponse>
 ) {
     Column(
         horizontalAlignment = Alignment.Start,
@@ -177,9 +178,7 @@ fun RecommendationContent(
         var i = 1
         LazyColumn {
             items(taskRecommendation) { task ->
-                RecommendedTask(index = i, task = task, onButtonPressed = {
-                    // buka add task dengan nama task dari sini
-                })
+                RecommendedTask(index = i, task = task.predictionTask)
                 Spacer(modifier = Modifier.height(8.dp))
                 i++
             }
@@ -192,7 +191,6 @@ fun RecommendedTask(
     modifier: Modifier = Modifier,
     index: Int,
     task: String,
-    onButtonPressed: (taskName: String) -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -205,16 +203,6 @@ fun RecommendedTask(
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
         )
-        Button(
-            onClick = { onButtonPressed(task) },
-            shape = RoundedCornerShape(6.dp),
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primary)
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = null, tint = Color.White,
-                modifier = Modifier.size(24.dp)
-            )
-        }
     }
 }
 

@@ -12,4 +12,5 @@ sealed class Screen(val route: String) {
     object Recommendation : Screen("recommendation/{taskId}") {
         fun createRoute(taskId: String) = "recommendation/$taskId"
     }
+    object Timer : Screen("timer")
 }
