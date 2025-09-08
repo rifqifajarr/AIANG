@@ -2,6 +2,10 @@
 AIANG is a mobile application developed as a **Bangkit Capstone Project**. It helps users boost productivity while maintaining a healthy work–life balance.  
 Through **machine learning**, AIANG analyzes user behavior patterns and provides personalized recommendations for managing daily schedules.
 
+<p align="center">
+  <img src="screenshot.png" alt="AIANG Screenshot" width="800">
+</p>
+
 ---
 
 ## ✨ Features  
